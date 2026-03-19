@@ -16,19 +16,22 @@ app.post("/chat", async (req, res) => {
   try {
     const userMessage = req.body.message.toLowerCase();
 
-    let sheetData = [];
+    const sheetRes = await axios.get(SHEET_API);
+    const sheetData = sheetRes.data;
 
-    try {
-      const sheetRes = await axios.get(SHEET_API);
-      sheetData = sheetRes.data;
-    } catch (e) {
-      console.log("Sheet lỗi:", e.message);
-    }
+    // 👉 LOG ĐÚNG CHỖ
+    console.log("DATA:", sheetData);
 
-    // tìm keyword
-    const found = sheetData.find(row =>
-      userMessage.includes(row.keyword)
-    );
+    const found = sheetData.find(row => {
+      if (!row.keyword) return false;
+
+      const keywords = row.keyword
+        .toLowerCase()
+        .split(";")
+        .map(k => k.trim());
+
+      return keywords.some(k => userMessage.includes(k));
+    });
 
     if (found) {
       return res.json({ reply: found.reply });
@@ -39,7 +42,7 @@ app.post("/chat", async (req, res) => {
     });
 
   } catch (err) {
-    console.log("MAIN ERROR:", err.message);
+    console.log("ERROR:", err.message);
     res.json({ reply: "Lỗi hệ thống!" });
   }
 });
