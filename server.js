@@ -43,8 +43,9 @@ Luôn trả lời ngắn gọn, hỏi nhu cầu và chốt lịch.`
       reply: ai.data.choices[0].message.content
     });
   } catch (err) {
-    res.json({ reply: "Đang lỗi hệ thống, vui lòng thử lại!" });
-  }
+  console.log(err.response?.data || err.message);
+  res.json({ reply: "Đang lỗi hệ thống, vui lòng thử lại!" });
+}
 });
 
 const PORT = process.env.PORT || 3000;
