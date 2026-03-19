@@ -45,3 +45,4 @@ app.post("/chat", async (req, res) => {
 });
 
 app.listen(3000, () => console.log("Server chạy"));
+console.log("DATA:", sheetData);
