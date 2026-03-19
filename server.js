@@ -5,48 +5,38 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const SHEET_API = "https://opensheet.elk.sh/1rLUrf_Jmm3p93yN8gIOSz5-3JI4THYAq/botrep";
 
-// API chat
+async function getSheetData() {
+  const res = await axios.get(SHEET_API);
+  return res.data;
+}
+
 app.post("/chat", async (req, res) => {
   try {
-    const userMessage = req.body.message;
+    const userMessage = req.body.message.toLowerCase();
 
-    const ai = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: `Bạn là tư vấn Paxsky.
-Văn phòng:
-- Trương Định
-- Ung Văn Khiêm
-- Nguyễn Đình Chiểu
-- Lê Lai
-Hotline: 0911 07 22 99
+    const sheetData = await getSheetData();
 
-Luôn trả lời ngắn gọn, hỏi nhu cầu và chốt lịch.`
-          },
-          { role: "user", content: userMessage }
-        ]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${OPENAI_API_KEY}`
-        }
-      }
+    // tìm keyword
+    const found = sheetData.find(row =>
+      userMessage.includes(row.keyword)
     );
 
-    res.json({
-      reply: ai.data.choices[0].message.content
+    // nếu có trong sheet → trả lời luôn
+    if (found) {
+      return res.json({ reply: found.reply });
+    }
+
+    // nếu không → fallback AI
+    return res.json({
+      reply: "Anh/chị vui lòng cho em thêm thông tin để hỗ trợ tốt hơn ạ!"
     });
+
   } catch (err) {
-  console.log(err.response?.data || err.message);
-  res.json({ reply: "Đang lỗi hệ thống, vui lòng thử lại!" });
-}
+    console.log(err.message);
+    res.json({ reply: "Lỗi hệ thống!" });
+  }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server chạy"));
+app.listen(3000, () => console.log("Server chạy"));
