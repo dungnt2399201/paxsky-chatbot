@@ -1,1 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Paxsky Chatbot</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: auto; }
+    #chat { margin-top: 20px; }
+  </style>
+</head>
+<body>
 
+<h2>🏢 Paxsky Chatbot</h2>
+
+<input id="msg" placeholder="Nhập câu hỏi..." style="width:70%" />
+<button onclick="send()">Gửi</button>
+
+<div id="chat"></div>
+
+<script>
+async function send() {
+  const msg = document.getElementById("msg").value;
+
+  const res = await fetch("/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ message: msg })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("chat").innerHTML +=
+    "<p><b>Bạn:</b> " + msg + "</p>" +
+    "<p><b>Paxsky:</b> " + data.reply + "</p>";
+}
+</script>
+
+</body>
+</html>
