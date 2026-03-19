@@ -16,25 +16,30 @@ app.post("/chat", async (req, res) => {
   try {
     const userMessage = req.body.message.toLowerCase();
 
-    const sheetData = await getSheetData();
+    let sheetData = [];
+
+    try {
+      const sheetRes = await axios.get(SHEET_API);
+      sheetData = sheetRes.data;
+    } catch (e) {
+      console.log("Sheet lỗi:", e.message);
+    }
 
     // tìm keyword
     const found = sheetData.find(row =>
       userMessage.includes(row.keyword)
     );
 
-    // nếu có trong sheet → trả lời luôn
     if (found) {
       return res.json({ reply: found.reply });
     }
 
-    // nếu không → fallback AI
     return res.json({
       reply: "Anh/chị vui lòng cho em thêm thông tin để hỗ trợ tốt hơn ạ!"
     });
 
   } catch (err) {
-    console.log(err.message);
+    console.log("MAIN ERROR:", err.message);
     res.json({ reply: "Lỗi hệ thống!" });
   }
 });
