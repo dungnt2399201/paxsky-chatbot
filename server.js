@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-const SHEET_API = "https://opensheet.elk.sh/1rLUrf_Jmm3p93yN8gIOSz5-3JI4THYAq/12345";
+const SHEET_API = "https://opensheet.elk.sh/1xD_unpV8m2_OHHotuOp2-W0NwYDminj0pi6WmfmubEg/Sheet1";
 
 async function getSheetData() {
   const res = await axios.get(SHEET_API);
